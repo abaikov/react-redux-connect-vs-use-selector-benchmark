@@ -36,31 +36,31 @@ const originalDispatch = store.dispatch.bind(store);
 
 let i = 0;
 const results = {
-    fullConnect: [],
-    fullUseSelector: [],
-    simplifiedConnect: [],
-    simplifiedUseSelector: [],
+    manyEntitiesConnect: [],
+    manyEntitiesUseSelector: [],
+    oneEntityConnect: [],
+    oneEntityUseSelector: [],
     cleanUp: [],
 };
 
 const TEST_TYPES = {
-    FULL_USE_SELECTOR: 'fullUseSelector',
-    FULL_CONNECT: 'fullConnect',
-    SIMPLIFIED_USE_SELECTOR: 'simplifiedUseSelector',
-    SIMPLIFIED_CONNECT: 'simplifiedConnect',
+    MANY_ENTITIES_USE_SELECTOR: 'manyEntitiesUseSelector',
+    MANY_ENTITIES_CONNECT: 'manyEntitiesConnect',
+    ONE_ENTITY_USE_SELECTOR: 'oneEntityUseSelector',
+    ONE_ENTITY_CONNECT: 'oneEntityConnect',
     CLEAN_UP: 'cleanUp',
 };
 
 const getTestTypeLabel = (type) => {
     switch (type) {
-        case TEST_TYPES.FULL_USE_SELECTOR:
-            return 'Full UseSelector';
-        case TEST_TYPES.FULL_CONNECT:
-            return 'Full Connect';
-        case TEST_TYPES.SIMPLIFIED_USE_SELECTOR:
-            return 'Simplified UseSelector';
-        case TEST_TYPES.SIMPLIFIED_CONNECT:
-            return 'Simplified Connect';
+        case TEST_TYPES.MANY_ENTITIES_USE_SELECTOR:
+            return 'Many Entities UseSelector';
+        case TEST_TYPES.MANY_ENTITIES_CONNECT:
+            return 'Many Entities Connect';
+        case TEST_TYPES.ONE_ENTITY_USE_SELECTOR:
+            return 'One Entity UseSelector';
+        case TEST_TYPES.ONE_ENTITY_CONNECT:
+            return 'One Entity Connect';
         case TEST_TYPES.CLEAN_UP:
             return 'Clean Up';
         default:
@@ -72,17 +72,17 @@ store.dispatch = (action) => {
     const perf = performance.now();
     const result = originalDispatch(action);
     const perfEnd = performance.now();
+    const timeSpend = perfEnd - perf;
 
     // Skip the first run as it's usually a long one
     if (i > 0) {
         const testType = action.payload.testType;
-        results[testType].push(perfEnd - perf);
+        results[testType].push(timeSpend);
     }
 
     console.log(
         `${getTestTypeLabel(action.payload.testType)} ${action.type} took ${(
-            (perfEnd - perf) /
-            1000
+            timeSpend / 1000
         ).toFixed(4)}s`,
     );
     i++;
@@ -155,32 +155,32 @@ const UsersConnected = connect((state) => ({
     users.map((user) => <UserConnected key={user.id} userId={user.id} />),
 );
 
-const UserSimplified = ({ userId }) => {
+const UserOneEntity = ({ userId }) => {
     const user = useSelector((state) =>
         usersSelectors.selectById(state, userId),
     );
     return <div>{user.username}</div>;
 };
 
-const UsersSimplified = () => {
+const UsersOneEntity = () => {
     const users = useSelector((state) => usersSelectors.selectAll(state));
     return users.map((user) => (
-        <UserSimplified key={user.id} userId={user.id} />
+        <UserOneEntity key={user.id} userId={user.id} />
     ));
 };
 
-const UserSimplifiedConnected = connect((state, { userId }) => {
+const UserOneEntityConnected = connect((state, { userId }) => {
     const user = usersSelectors.selectById(state, userId);
     return {
         user,
     };
 })(({ user }) => <div>{user.username}</div>);
 
-const UsersSimplifiedConnected = connect((state) => ({
+const UsersOneEntityConnected = connect((state) => ({
     users: usersSelectors.selectAll(state),
 }))(({ users }) =>
     users.map((user) => (
-        <UserSimplifiedConnected key={user.id} userId={user.id} />
+        <UserOneEntityConnected key={user.id} userId={user.id} />
     )),
 );
 
@@ -203,13 +203,13 @@ const Results = () => {
 };
 
 const TEST_CYCLE = [
-    TEST_TYPES.FULL_USE_SELECTOR,
+    TEST_TYPES.ONE_ENTITY_CONNECT,
     TEST_TYPES.CLEAN_UP,
-    TEST_TYPES.SIMPLIFIED_USE_SELECTOR,
+    TEST_TYPES.MANY_ENTITIES_USE_SELECTOR,
     TEST_TYPES.CLEAN_UP,
-    TEST_TYPES.FULL_CONNECT,
+    TEST_TYPES.ONE_ENTITY_USE_SELECTOR,
     TEST_TYPES.CLEAN_UP,
-    TEST_TYPES.SIMPLIFIED_CONNECT,
+    TEST_TYPES.MANY_ENTITIES_CONNECT,
     TEST_TYPES.CLEAN_UP,
 ];
 
@@ -217,7 +217,7 @@ const MAX_TRIES = 40;
 const DISPATCH_COUNT = 10;
 
 function App() {
-    const [testType, setTestType] = useState(TEST_TYPES.FULL_USE_SELECTOR);
+    const [testType, setTestType] = useState(TEST_CYCLE[0]);
     const countRef = useRef(0);
     const cyclePositionRef = useRef(0);
 
@@ -253,13 +253,15 @@ function App() {
     return (
         <Provider store={store}>
             <div>Calculating results...</div>
-            {testType === TEST_TYPES.FULL_USE_SELECTOR && <Users />}
-            {testType === TEST_TYPES.FULL_CONNECT && <UsersConnected />}
-            {testType === TEST_TYPES.SIMPLIFIED_USE_SELECTOR && (
-                <UsersSimplified />
+            {testType === TEST_TYPES.MANY_ENTITIES_USE_SELECTOR && <Users />}
+            {testType === TEST_TYPES.MANY_ENTITIES_CONNECT && (
+                <UsersConnected />
             )}
-            {testType === TEST_TYPES.SIMPLIFIED_CONNECT && (
-                <UsersSimplifiedConnected />
+            {testType === TEST_TYPES.ONE_ENTITY_USE_SELECTOR && (
+                <UsersOneEntity />
+            )}
+            {testType === TEST_TYPES.ONE_ENTITY_CONNECT && (
+                <UsersOneEntityConnected />
             )}
         </Provider>
     );
