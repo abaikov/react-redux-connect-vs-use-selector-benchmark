@@ -188,7 +188,7 @@ const UsersOneEntityConnected = connect((state) => ({
 const Results = () => {
     const calculateAverage = (arr) =>
         arr.length > 0
-            ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(4)
+            ? (arr.reduce((a, b) => a + b, 0) / arr.length / 1000).toFixed(4)
             : '0.0000';
 
     return (
