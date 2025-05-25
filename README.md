@@ -1,8 +1,10 @@
 # react-redux-connect-vs-use-selector-benchmark
 
-A benchmark comparison of the react-redux "connect" and "useSelector" functions
+A benchmark comparison of the react-redux "connect" and "useSelector" functions.
 
-Launch the app to see the results (open the dev-tools console to get info about the progress)
+Launch the app to see the results (open the dev-tools console to get info about the progress).
+
+Full info: [React-Redux: Is It True That useSelector Is Faster Than connect?](https://medium.com/@abaikov23/react-redux-is-it-true-that-useselector-is-faster-than-connect-70513129ca37).
 
 # Getting Started with Create React App
 
