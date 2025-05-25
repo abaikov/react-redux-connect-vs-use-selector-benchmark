@@ -75,6 +75,7 @@ store.dispatch = (action) => {
     const timeSpend = perfEnd - perf;
 
     // Skip the first run as it's usually a long one
+    // (CPU loads data into cache)
     if (i > 0) {
         const testType = action.payload.testType;
         results[testType].push(timeSpend);
